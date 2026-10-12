@@ -5,6 +5,7 @@
   --color-header-mobile: #700002;
   --color-accent: #ad0000;
   --color-backdrop: rgb(224 174 174 / 0.4);
+  --font-sans: var(--font-figtree), Arial, Helvetica, sans-serif;
   --font-display: var(--font-jost), Futura, Arial, sans-serif;
   --animate-slide-in: slide-in 300ms ease-out;
   --animate-fade-in: fade-in 300ms ease-out;
@@ -56,7 +57,17 @@
   }
 }
 
+@utility section {
+  padding: 96px 20px;
+
+  @media (width >= 48rem) {
+    padding-inline: 40px;
+  }
+}
+
 body {
   background: var(--color-white);
   color: var(--color-black);
+  font-size: 20px;
+  line-height: 1.8;
 }
