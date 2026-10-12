@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { Jost } from "next/font/google";
+import { Figtree, Jost } from "next/font/google";
 
 import { Header } from "@/components/header";
 import { SocialIcons } from "@/components/social-icons";
 
 import "./globals.css";
+
+const figtree = Figtree({
+  subsets: ["latin"],
+  variable: "--font-figtree",
+});
 
 const jost = Jost({
   subsets: ["latin"],
@@ -17,8 +22,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${jost.variable} antialiased`}>
-      <body className="flex min-h-svh flex-col">
+    <html
+      lang="en"
+      className={`${figtree.variable} ${jost.variable} antialiased`}
+    >
+      <body className="flex min-h-svh flex-col font-sans">
         <Header />
         <main className="flex-1">{children}</main>
         <footer className="bg-black px-5 py-9 sm:py-4.5">
