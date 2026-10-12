@@ -65,6 +65,17 @@
   }
 }
 
+@utility section-heading {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+
+  @media (width >= 48rem) {
+    font-size: 58px;
+  }
+}
+
 body {
   background: var(--color-white);
   color: var(--color-black);
