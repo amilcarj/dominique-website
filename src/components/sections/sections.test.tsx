@@ -1,9 +1,16 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { aboutPhoto, reels, voDemos } from "@/constants/media";
+import {
+  aboutPhoto,
+  portfolio,
+  reels,
+  stills,
+  voDemos,
+} from "@/constants/media";
 
 import { About } from "./about";
+import { Gallery } from "./gallery";
 import { Reels } from "./reels";
 
 describe("About", () => {
@@ -37,5 +44,41 @@ describe("Reels", () => {
         screen.getByRole("button", { name: `Play ${voDemo.title}` }),
       ).toBeDefined();
     }
+  });
+});
+
+describe("Gallery", () => {
+  test("has portfolio and stills under their own headings", () => {
+    render(<Gallery />);
+    expect(screen.getByRole("region", { name: "Gallery" }).id).toBe("gallery");
+    expect(
+      within(screen.getByRole("list", { name: "Portfolio" })).getAllByRole(
+        "button",
+      ),
+    ).toHaveLength(portfolio.length);
+    expect(
+      within(screen.getByRole("list", { name: "Stills" })).getAllByRole(
+        "button",
+      ),
+    ).toHaveLength(stills.length);
+  });
+
+  test("opens the lightbox on the chosen photo and returns focus on close", async () => {
+    render(<Gallery />);
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    const opener = within(
+      screen.getByRole("list", { name: "Stills" }),
+    ).getAllByRole("button")[2];
+    fireEvent.click(opener);
+    const dialog = await screen.findByRole("dialog");
+    const slide = within(dialog).getByRole("group", {
+      name: `3 of ${stills.length}`,
+    });
+    expect(slide.querySelector("img")?.getAttribute("alt")).toBe(stills[2].alt);
+
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    await expect.poll(() => screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(opener);
   });
 });
