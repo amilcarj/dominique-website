@@ -66,7 +66,7 @@ export function Header() {
         <Link
           href="/"
           onClick={() => scrollHomeToTop("/")}
-          className={`font-display text-2xl font-medium tracking-[0.17em] uppercase sm:w-min sm:text-4xl sm:font-bold xl:w-auto ${linkFocus}`}
+          className={`font-display text-xl font-medium tracking-[0.17em] uppercase sm:w-min sm:text-4xl sm:font-bold xl:w-auto ${linkFocus}`}
         >
           {site.name}
         </Link>
