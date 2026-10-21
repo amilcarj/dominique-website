@@ -8,10 +8,12 @@ import {
   stills,
   voDemos,
 } from "@/constants/media";
+import { site } from "@/constants/site";
 
 import { About } from "./about";
 import { Gallery } from "./gallery";
 import { Reels } from "./reels";
+import { Resume } from "./resume";
 
 describe("About", () => {
   test("has the photo, four bio paragraphs and bold name and credits", () => {
@@ -76,6 +78,30 @@ describe("Gallery", () => {
       name: `3 of ${stills.length}`,
     });
     expect(slide.querySelector("img")?.getAttribute("alt")).toBe(stills[2].alt);
+
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    await expect.poll(() => screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(opener);
+  });
+});
+
+describe("Resume", () => {
+  test("has a PDF download and the résumé image, which opens full size", async () => {
+    render(<Resume />);
+    expect(screen.getByRole("region", { name: "Resume" }).id).toBe("resume");
+    const pdf = screen.getByRole("link", { name: "Download Resume (PDF)" });
+    expect(pdf.getAttribute("href")).toBe(site.resume.pdf);
+    expect(pdf.hasAttribute("download")).toBe(true);
+
+    const opener = screen.getByRole("button", {
+      name: `View full size: ${site.resume.image.alt}`,
+    });
+    fireEvent.click(opener);
+    const dialog = await screen.findByRole("dialog");
+    const slide = within(dialog).getByRole("group", { name: "1 of 1" });
+    expect(slide.querySelector("img")?.getAttribute("alt")).toBe(
+      site.resume.image.alt,
+    );
 
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     await expect.poll(() => screen.queryByRole("dialog")).toBeNull();

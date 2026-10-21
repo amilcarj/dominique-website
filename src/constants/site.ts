@@ -1,8 +1,8 @@
 import actorsAccessIcon from "@/assets/icons/actors-access.png";
 import imdbIcon from "@/assets/icons/imdb.png";
 import instagramIcon from "@/assets/icons/instagram.png";
+import resumeImage from "@/assets/resume.png";
 
-// Each paragraph alternates plain and bold segments, starting with plain.
 export const site = {
   bio: [
     [
@@ -27,6 +27,11 @@ export const site = {
   description: "Dominique Nieves is a Latina actress, writer and director.",
   email: "dominiquedanielleartist@gmail.com",
   name: "Dominique Nieves",
+  resume: {
+    // TODO: need alt txt
+    image: { alt: "TODO: need alt txt", src: resumeImage },
+    pdf: "/Dominique Nieves Resume.pdf",
+  },
   socialLinks: [
     {
       href: "https://www.imdb.me/dominiquenieves",
