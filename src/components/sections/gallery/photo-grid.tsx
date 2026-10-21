@@ -5,9 +5,8 @@ import { useRef, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
 
 import "yet-another-react-lightbox/styles.css";
+import { LightboxSlide } from "@/components/lightbox-slide";
 import type { Photo } from "@/constants/media";
-
-import { LightboxSlide } from "./lightbox-slide";
 
 interface PhotoGridProps {
   photos: Photo[];
