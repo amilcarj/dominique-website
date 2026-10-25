@@ -27,7 +27,7 @@ export async function generateMetadata({
 }: PageProps<"/[section]">): Promise<Metadata> {
   const { section } = await params;
   const { title } = sections.get(section) ?? notFound();
-  return { title };
+  return { alternates: { canonical: `/${section}` }, title };
 }
 
 export default async function SectionPage({ params }: PageProps<"/[section]">) {
