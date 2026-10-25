@@ -3,6 +3,7 @@ import { Figtree, Jost } from "next/font/google";
 
 import { Header } from "@/components/header";
 import { SocialIcons } from "@/components/social-icons";
+import { site } from "@/constants/site";
 
 import "./globals.css";
 
@@ -17,7 +18,7 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
-  title: "Dominique Nieves",
+  title: { default: site.name, template: `%s — ${site.name}` },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
