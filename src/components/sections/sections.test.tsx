@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import {
   aboutPhoto,
@@ -11,6 +11,7 @@ import {
 import { site } from "@/constants/site";
 
 import { About } from "./about";
+import { Contact } from "./contact";
 import { Gallery } from "./gallery";
 import { Reels } from "./reels";
 import { Resume } from "./resume";
@@ -106,5 +107,131 @@ describe("Resume", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     await expect.poll(() => screen.queryByRole("dialog")).toBeNull();
     expect(document.activeElement).toBe(opener);
+  });
+});
+
+describe("Contact", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+  });
+
+  const fillForm = (overrides: Record<string, string> = {}) => {
+    const values: Record<string, string> = {
+      "Email Address": "casting@example.com",
+      "First Name": "Jamie",
+      "Last Name": "Rivera",
+      Message: "We'd love to see you for a role.",
+      Subject: "Audition",
+      ...overrides,
+    };
+    const form = screen.getByRole("form", { name: "Contact form" });
+    for (const [label, value] of Object.entries(values)) {
+      fireEvent.change(within(form).getByLabelText(new RegExp(label)), {
+        target: { value },
+      });
+    }
+    return form;
+  };
+
+  const mockResend = (ok: boolean) => {
+    vi.stubEnv("RESEND_API_KEY", "re_test");
+    vi.stubEnv("CONTACT_TO_EMAIL", site.email);
+    vi.stubEnv("CONTACT_FROM_EMAIL", "");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    return vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response("{}", { status: ok ? 200 : 500 }));
+  };
+
+  test("has the intro and the contact form fields", () => {
+    render(<Contact />);
+    expect(screen.getByRole("region", { name: "Contact" }).id).toBe("contact");
+    expect(
+      screen.getByText(
+        "Dominique can be reached directly through the form below:",
+      ),
+    ).toBeDefined();
+
+    const form = screen.getByRole("form", { name: "Contact form" });
+    for (const label of [
+      "First Name",
+      "Last Name",
+      "Email Address",
+      "Subject",
+      "Message",
+    ]) {
+      expect(
+        within(form).getByLabelText(new RegExp(label)).matches(":required"),
+      ).toBe(true);
+    }
+    expect(within(form).getByRole("button", { name: "Submit" })).toBeDefined();
+  });
+
+  test("sends a valid message to Resend with the visitor as reply-to", async () => {
+    const fetchMock = mockResend(true);
+    render(<Contact />);
+    fireEvent.submit(fillForm());
+
+    expect(
+      await screen.findByText("Thanks! Your message was sent."),
+    ).toBeDefined();
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://api.resend.com/emails");
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      from: "Website Contact <onboarding@resend.dev>",
+      reply_to: "casting@example.com",
+      subject: "Website contact: Audition",
+      to: site.email,
+    });
+  });
+
+  test("shows field errors, keeps the input, and sends nothing when invalid", async () => {
+    const fetchMock = mockResend(true);
+    render(<Contact />);
+    fireEvent.submit(
+      fillForm({ "Email Address": "not-an-email", Message: "" }),
+    );
+
+    expect(
+      await screen.findByText("Enter a valid email address."),
+    ).toBeDefined();
+    expect(screen.getByText("This field is required.")).toBeDefined();
+    expect(
+      (screen.getByLabelText(/Email Address/) as HTMLInputElement).value,
+    ).toBe("not-an-email");
+    expect(
+      screen.getByLabelText(/First Name/).getAttribute("aria-invalid"),
+    ).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test("offers the direct email when sending fails", async () => {
+    mockResend(false);
+    render(<Contact />);
+    fireEvent.submit(fillForm());
+
+    expect(await screen.findByText(/couldn't be sent/)).toBeDefined();
+    expect(
+      screen.getByRole("link", { name: site.email }).getAttribute("href"),
+    ).toBe(`mailto:${site.email}`);
+  });
+
+  test("silently drops submissions that fill in the honeypot", async () => {
+    const fetchMock = mockResend(true);
+    const { container } = render(<Contact />);
+    const form = fillForm();
+    fireEvent.change(
+      container.querySelector('input[name="company"]') as HTMLInputElement,
+      {
+        target: { value: "spam" },
+      },
+    );
+    fireEvent.submit(form);
+
+    expect(
+      await screen.findByText("Thanks! Your message was sent."),
+    ).toBeDefined();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
