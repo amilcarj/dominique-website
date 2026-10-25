@@ -1,4 +1,5 @@
 import { About } from "@/components/sections/about";
+import { Contact } from "@/components/sections/contact";
 import { Gallery } from "@/components/sections/gallery";
 import { Reels } from "@/components/sections/reels";
 import { Resume } from "@/components/sections/resume";
@@ -12,6 +13,7 @@ export default function Home() {
       <Reels />
       <Gallery />
       <Resume />
+      <Contact />
     </>
   );
 }
