@@ -25,7 +25,7 @@ export const site = {
     ],
   ] as const,
   description: "Dominique Nieves is a Latina actress, writer and director.",
-  email: "dominiquedanielleartist@gmail.com",
+  email: "contact@dominiquenieves.com",
   name: "Dominique Nieves",
   resume: {
     // TODO: need alt txt
